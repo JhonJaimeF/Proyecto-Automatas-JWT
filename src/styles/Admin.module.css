@@ -1,0 +1,313 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+html, body, #root {
+  height: 100%;
+  background-color: #f0f8ff; /* fondo azul claro */
+  margin: 0;
+}
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboardCard {
+  width: 100%;
+  max-width: 28rem;
+  background-color: #000000;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2563eb;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.iconLarge {
+  font-size: 2.5rem;
+  color: #2563eb;
+  margin: 0 auto 0.5rem;
+  width: 100%;
+  max-width: 3rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.welcomeText {
+  margin-bottom: 1.5rem;
+  color: #d1d5db;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.5; /* Mejor legibilidad */
+}
+
+.adminTools {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #1f2937;
+  border-radius: 8px;
+  border-left: 4px solid #2563eb; /* Azul resalte para admin */
+  overflow: hidden;
+}
+
+.optionsTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  color: #d1d5db;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  white-space: nowrap; /* Evita wrap en listas */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionIcon {
+  margin-right: 0.5rem;
+  color: #3b82f6;
+  min-width: 1rem; /* Espacio fijo para iconos */
+}
+
+.logoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.logoutBtn:hover {
+  background-color: #b91c1c;
+}
+
+/* Media Queries */
+@media (min-width: 640px) {
+  .dashboardCard {
+    padding: 2rem;
+  }
+  
+  .iconLarge {
+    font-size: 3rem;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+  }
+  
+  .welcomeText {
+    font-size: 1.1rem;
+  }
+  
+  .optionsTitle {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 2rem;
+  }
+  
+  .dashboardCard {
+    max-width: 28rem;
+  }
+}
+
+.pagePattern {
+  min-height: 100vh;
+  background-color: #f0f8ff;  /* Azul muy claro para el fondo */
+  padding: 2rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gradientTitle {
+  background: linear-gradient(45deg, #0047ab, #4169e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #e6f3ff;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(65, 105, 225, 0.2);
+}
+
+.cardTitle {
+  color: #0047ab;  /* Azul real */
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+
+.cardDesc {
+  color: #4682b4;  /* Azul acero */
+  margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+}
+
+.cardBtn {
+  background: linear-gradient(45deg, #1e90ff, #4169e1);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+}
+
+.cardBtn:hover {
+  opacity: 0.9;
+}
+
+/* Botón de logout (fuera de tarjetas) */
+.logoutBtn {
+  width: 100%;
+  background-color: #4169e1;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: block;
+  margin: 0 auto;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+}
+
+.logoutBtn:hover {
+  background-color: #1e90ff;
+}
+
+/* Estilos específicos para cada tarjeta */
+.card:nth-child(1) {
+  background: #e6f3ff;
+  border-color: #007bff;
+}
+
+.card:nth-child(2) {
+  background: #e1f1ff;
+  border-color: #0056b3;
+}
+
+.card:nth-child(3) {
+  background: #d6e9ff;
+  border-color: #004494;
+}
+
+.card:nth-child(4) {
+  background: #cce5ff;
+  border-color: #003575;
+}
+
+.card:nth-child(5) {
+  background: #c2ddff;
+  border-color: #002656;
+}
+
+.card:nth-child(6) {
+  background: #b8d4ff;
+  border-color: #001837;
+}
+
+/* Ajustar colores de texto para mejor contraste */
+.card:nth-child(n) .cardTitle {
+  color: #003575;
+}
+
+.card:nth-child(n) .cardDesc {
+  color: #004494;
+}
+
+.card:nth-child(n) .cardBtn {
+  background: linear-gradient(45deg, #0056b3, #004494);
+}
+
+.card:nth-child(n):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.adminLayout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  margin-left: 70px; /* Matches collapsed navbar width */
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 70px);
+}
+
+/* Add this for responsive cards */
+@media (max-width: 768px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Remove the logout button from Admin component since it's now in the navbar */
+.logoutBtn {
+  display: none;
+}

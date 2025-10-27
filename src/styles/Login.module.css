@@ -1,0 +1,124 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  padding: 1rem; /* Espacio en bordes para móviles */
+}
+
+.formCard {
+  background-color: #000000;
+  padding: 1.5rem; /* Reducido en mobile */
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 24rem; /* No excede 24rem, pero flex en mobile */
+  border: 1px solid #2563eb;
+  box-sizing: border-box; /* Incluye padding en width */
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.iconLarge {
+  font-size: 2.5rem; /* Más pequeño en mobile */
+  color: #2563eb;
+  margin: 0 auto 0.5rem;
+  width: 100%;
+  max-width: 3rem; /* Evita overflow */
+}
+
+.title {
+  font-size: 1.5rem; /* Escalable */
+  font-weight: bold;
+  color: #ffffff;
+  word-break: keep-all; /* No rompe palabras largas */
+}
+
+.inputGroup {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  color: #3b82f6;
+  font-size: 1rem; /* Escalable con input */
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  background-color: #1f2937;
+  color: #ffffff;
+  border: 1px solid #4b5563;
+  border-radius: 0.375rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box; /* Previene overflow horizontal */
+  font-size: 1rem; /* Consistente */
+}
+
+.input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.error {
+  color: #f87171;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Corta texto largo */
+  white-space: nowrap;
+}
+
+.submitBtn {
+  width: 100%;
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.submitBtn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Media Queries: Mobile-First */
+@media (min-width: 640px) { /* Tablet+ */
+  .formCard {
+    padding: 2rem;
+    width: 90%; /* Flex más ancho */
+  }
+  
+  .iconLarge {
+    font-size: 3rem;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+  }
+}
+
+@media (min-width: 1024px) { /* Desktop */
+  .container {
+    padding: 2rem;
+  }
+  
+  .formCard {
+    width: 24rem; /* Fijo en desktop */
+  }
+}

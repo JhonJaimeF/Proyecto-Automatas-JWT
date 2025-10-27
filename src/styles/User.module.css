@@ -1,0 +1,135 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboardCard {
+  width: 100%;
+  max-width: 28rem;
+  background-color: #000000;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2563eb;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.iconLarge {
+  font-size: 2.5rem;
+  color: #2563eb;
+  margin: 0 auto 0.5rem;
+  width: 100%;
+  max-width: 3rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.welcomeText {
+  margin-bottom: 1.5rem;
+  color: #d1d5db;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.5; /* Mejor legibilidad */
+}
+
+.optionsList {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #1f2937;
+  border-radius: 8px;
+  border-left: 4px solid #2563eb;
+  overflow: hidden; /* Previene desbordes */
+}
+
+.optionsTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  color: #d1d5db;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  white-space: nowrap; /* Evita wrap en listas */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.optionIcon {
+  margin-right: 0.5rem;
+  color: #3b82f6;
+  min-width: 1rem; /* Espacio fijo para iconos */
+}
+
+.logoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.logoutBtn:hover {
+  background-color: #b91c1c;
+}
+
+/* Media Queries */
+@media (min-width: 640px) {
+  .dashboardCard {
+    padding: 2rem;
+  }
+  
+  .iconLarge {
+    font-size: 3rem;
+  }
+  
+  .title {
+    font-size: 1.875rem;
+  }
+  
+  .welcomeText {
+    font-size: 1.1rem;
+  }
+  
+  .optionsTitle {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 2rem;
+  }
+  
+  .dashboardCard {
+    max-width: 28rem;
+  }
+}
