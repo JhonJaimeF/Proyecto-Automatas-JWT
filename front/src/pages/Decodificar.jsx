@@ -1,44 +1,138 @@
+import { useState, useEffect } from 'react'; // 👈 Agrega useEffect aquí
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import styles from '../styles/Admin.module.css';  // Reusa estilos, pero puedes crear Login.module.css si prefieres
+import styles from '../styles/Admin.module.css';
+import genStyles from '../styles/Generar.module.css';
 
-function Generar() {
+function Decodificar() {
   const navigate = useNavigate();
+  const [jwtInput, setJwtInput] = useState('');
+  const [decodedData, setDecodedData] = useState({
+    usuario: '',
+    role: '',
+    iat: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
 
-  const handleGenerate = () => {
-    // Placeholder: En un futuro, usa una lib como jsonwebtoken (instala: npm i jsonwebtoken)
-    // Ej: const token = jwt.sign({ payload: 'data' }, 'secret');
-    alert('JWT generado! (Implementa la lógica real aquí)');
+  // 👈 NUEVO: Resetea datos y mensaje cada vez que cambie el JWT en el textarea
+  useEffect(() => {
+    setDecodedData({ usuario: '', role: '', iat: '' });
+    setMessage(null);
+  }, [jwtInput]); // Se ejecuta cada vez que jwtInput cambie
+
+  // Update the endpoint URL to match your backend
+  const BACKEND_URL = 'http://localhost:3001';
+
+  const handleDecode = async () => {
+    if (!jwtInput.trim()) {
+      setMessage({ success: false, text: 'Por favor ingresa un JWT para decodificar.' });
+      return;
+    }
+    
+    setLoading(true);
+    setMessage(null);
+    
+    try {
+      const decodeResponse = await fetch(`${BACKEND_URL}/decode`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jwt: jwtInput }),
+      });
+      
+      if (!decodeResponse.ok) {
+        const errorData = await decodeResponse.json();
+        throw new Error(errorData.error || 'Error al decodificar.');
+      }
+      
+      const decoded = await decodeResponse.json();
+      setDecodedData({
+        usuario: decoded.usuario || '',
+        role: decoded.role || '',
+        iat: decoded.iat || '',
+      });
+      setMessage({ success: true, text: 'JWT verificado y decodificado exitosamente' }); // 👈 Mensaje más claro
+    } catch (error) {
+      setMessage({ success: false, text: `Error: ${error.message}` });
+      setDecodedData({ usuario: '', role: '', iat: '' });
+    }
+    
+    setLoading(false);
   };
 
   const handleBack = () => {
-    navigate('/', { replace: true });  // Vuelve a home/login
+    navigate('/', { replace: true });
   };
 
   return (
     <div className={styles.adminLayout}>
-      <Navbar />      
+      <Navbar />
       <main className={styles.mainContent}>
         <div className={styles.pagePattern}>
           <div className={styles.inner}>
             <h1 className={styles.gradientTitle}>Decodificar JWT</h1>
-            <p>Aquí va el formulario para generar tokens JWT...</p>
             
-            {/* Ejemplo de formulario básico */}
-            <div style={{ marginBottom: 20 }}>
-              <textarea
-                placeholder="Payload JSON (ej: { &quot;userId&quot;: 123 })"
-                rows={4}
-                cols={50}
-                style={{ width: '100%', marginBottom: 10 }}
-              />
-              <button onClick={handleGenerate} style={{ marginRight: 10 }}>
-                Generar JWT
-              </button>
+            
+              <h3>Pega tu JWT aquí</h3>
+              <div className={genStyles.jwtSection}>
+                <textarea
+                  value={jwtInput}
+                  onChange={(e) => setJwtInput(e.target.value)}
+                  placeholder="Pega aquí el JWT que quieres decodificar"
+                  className={genStyles.jwtTextarea}
+                  rows={4}
+                />
+                <button 
+                  onClick={handleDecode} 
+                  disabled={loading || !jwtInput.trim()}
+                  className={genStyles.generateBtn}
+                >
+                  {loading ? 'Verificando...' : 'Verificar JWT'} {/* 👈 Ajuste opcional */}
+                </button>
+              </div>
+           
+            {/* Mostrar los datos decodificados siempre que haya una respuesta */}
+            <div className={genStyles.generateForm}>
+              <h3>Datos Decodificados</h3>
+              <div className={genStyles.inputGrid}>
+                <div className={`${genStyles.input} ${genStyles.readOnlyInput}`}>
+                  <label>Usuario:</label>
+                  <input
+                    type="text"
+                    value={decodedData.usuario}
+                    readOnly
+                    className={genStyles.input}
+                  />
+                </div>
+                <div className={`${genStyles.input} ${genStyles.readOnlyInput}`}>
+                  <label>Role:</label>
+                  <input
+                    type="text"
+                    value={decodedData.role}
+                    readOnly
+                    className={genStyles.input}
+                  />
+                </div>
+                <div className={`${genStyles.input} ${genStyles.readOnlyInput}`}>
+                  <label>IAT:</label>
+                  <input
+                    type="text"
+                    value={decodedData.iat}
+                    readOnly
+                    className={genStyles.input}
+                  />
+                </div>
+              </div>
             </div>
             
-            <div style={{ marginTop: 20 }}>
-              <button onClick={handleBack} className={styles.logoutBtn}>  {/* Reusa estilo como "volver" */}
+            {message && (
+              <div className={`${genStyles.messageContainer} ${message.success ? genStyles.success : genStyles.error}`}>
+                <p>{message.text}</p>
+              </div>
+            )}
+            
+            <div className={styles.buttonContainer}>
+              <button onClick={handleBack} className={styles.logoutBtn}>
                 Volver al Inicio
               </button>
             </div>
@@ -49,4 +143,4 @@ function Generar() {
   );
 }
 
-export default Generar;
+export default Decodificar;

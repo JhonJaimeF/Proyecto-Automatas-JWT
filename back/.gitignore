@@ -1,0 +1,65 @@
+# === Node ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# === Environment variables ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# === Logs ===
+logs
+*.log
+*.log.*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# === Build outputs ===
+dist/
+build/
+tmp/
+temp/
+out/
+
+# === Coverage ===
+coverage/
+.nyc_output/
+
+# === IDEs and editors ===
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+
+# === Test and debug ===
+*.tgz
+*.tsbuildinfo
+
+# === Docker ===
+.docker/
+docker-compose.override.yml
+
+# === Optional: TypeScript ===
+*.tsbuildinfo
+
+# === Optional: Local development ===
+.cache/
+.eslintcache
