@@ -568,12 +568,13 @@ export const verificarJWT = async (req, res) => {
       }, res);
     }
 
-    // MANEJO DE LA KEY (CLAVE SECRETA)
-    if (key === "" || key.trim() === "") {
-      // 1. Si la clave está vacía -> ciclo normal (no verificar firma)
+    // Siempre validar la firma con la clave proporcionada
+    try {
+      jwt.verify(token, key, { algorithms: ALGORITMOS_PERMITIDOS });
+      // Verificación exitosa
       estado = "valido";
-      mensajeGuardado = "Token válido y no expirado (sin verificación de firma)";
-      claveSecretaGuardada = null;
+      mensajeGuardado = "Token válido y no expirado";
+      claveSecretaGuardada = key;
 
       return await guardarYResponder(estado, {
         token: tokenGuardado,
@@ -585,43 +586,23 @@ export const verificarJWT = async (req, res) => {
         exp: expGuardado,
         mensaje: mensajeGuardado
       }, res);
-    } else {
-      // 2. Si la clave NO está vacía -> verificar la firma con jwt.verify
-      try {
-        jwt.verify(token, key);
-        // 2.1 Verificación exitosa
-        estado = "valido";
-        mensajeGuardado = "Token válido y no expirado";
-        claveSecretaGuardada = key;
+    } catch (verifyError) {
+      // Verificación fallida - clave incorrecta (incluyendo clave vacía)
+      estado = "invalido";
+      errorGuardado = "Clave incorrecta";
+      mensajeGuardado = "Clave incorrecta";
 
-        return await guardarYResponder(estado, {
-          token: tokenGuardado,
-          header: headerGuardado,
-          payload: payloadGuardado,
-          signature: signatureGuardado,
-          claveSecreta: claveSecretaGuardada,
-          iat: iatGuardado,
-          exp: expGuardado,
-          mensaje: mensajeGuardado
-        }, res);
-      } catch (verifyError) {
-        // 2.2 Verificación fallida - clave incorrecta
-        estado = "invalido";
-        errorGuardado = "Clave incorrecta";
-        mensajeGuardado = "Clave incorrecta";
-
-        return await guardarYResponder(estado, {
-          token: tokenGuardado,
-          header: headerGuardado,
-          payload: payloadGuardado,
-          signature: signatureGuardado,
-          claveSecreta: null,
-          iat: iatGuardado,
-          exp: expGuardado,
-          error: errorGuardado,
-          mensaje: mensajeGuardado
-        }, res);
-      }
+      return await guardarYResponder(estado, {
+        token: tokenGuardado,
+        header: headerGuardado,
+        payload: payloadGuardado,
+        signature: signatureGuardado,
+        claveSecreta: null,
+        iat: iatGuardado,
+        exp: expGuardado,
+        error: errorGuardado,
+        mensaje: mensajeGuardado
+      }, res);
     }
 
   } catch (error) {
