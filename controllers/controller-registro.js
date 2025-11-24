@@ -7,7 +7,7 @@ const MI_CLAVE_SECRETA = process.env.JWT_SECRET || "claveTemporal";
 const ALGORITMOS_PERMITIDOS = ['HS256', 'HS384', 'HS512', 'RS256'];
 
 // Función para decodificar Base64URL
-const base64UrlDecode = (str) => {
+const base64UrlDecode = (str, key) => {
   try {
     let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
     const pad = base64.length % 4;
@@ -140,12 +140,11 @@ const guardarYResponder = async (estado, descripcion, res) => {
         signature: descripcion.signature,
         claveSecreta: descripcion.claveSecreta,
         iat: descripcion.iat,
-        exp: descripcion.exp,
-        esNuestroToken: descripcion.esNuestroToken
+        exp: descripcion.exp
       }
     });
   } else if (estado === "invalido") {
-    // INVÁLIDO - Distinguir entre expirado y otros errores
+    // INVÁLIDO - Distinguir entre expirado, clave incorrecta y otros errores
     if (descripcion.mensaje === "Token expirado") {
       // Token expirado - Mostrar datos completos
       return res.status(400).json({
@@ -158,8 +157,37 @@ const guardarYResponder = async (estado, descripcion, res) => {
           signature: descripcion.signature,
           claveSecreta: descripcion.claveSecreta,
           iat: descripcion.iat,
-          exp: descripcion.exp,
-          esNuestroToken: descripcion.esNuestroToken
+          exp: descripcion.exp
+        }
+      });
+    } else if (descripcion.mensaje === "Token no válido aún") {
+      // Token con iat futuro - Mostrar datos completos
+      return res.status(400).json({
+        estado: "invalido",
+        mensaje: "Token no válido aún",
+        razon: "El token tiene una fecha de emisión (iat) en el futuro",
+        datos: {
+          header: descripcion.header,
+          payload: descripcion.payload,
+          signature: descripcion.signature,
+          claveSecreta: descripcion.claveSecreta,
+          iat: descripcion.iat,
+          exp: descripcion.exp
+        }
+      });
+    } else if (descripcion.mensaje === "Clave incorrecta") {
+      // Clave incorrecta - Mostrar datos completos
+      return res.status(400).json({
+        estado: "invalido",
+        mensaje: "Clave incorrecta",
+        error: descripcion.error,
+        datos: {
+          header: descripcion.header,
+          payload: descripcion.payload,
+          signature: descripcion.signature,
+          claveSecreta: descripcion.claveSecreta,
+          iat: descripcion.iat,
+          exp: descripcion.exp
         }
       });
     } else {
@@ -206,7 +234,7 @@ const detectarTipoParte = (decoded) => {
 };
 
 export const verificarJWT = async (req, res) => {
-  const { token } = req.body;
+  const { token, key } = req.body;
 
   if (!token || typeof token !== "string") {
     return res.status(400).json({
@@ -214,8 +242,14 @@ export const verificarJWT = async (req, res) => {
     });
   }
 
+  if (key == null) {
+    return res.status(400).json({
+      error: "El campo 'key' es requerido en el body (puede ser una cadena vacía)."
+    });
+  }
+
   // Variables reutilizables para descripcion
-  let estado = "Corrupto";
+  let estado = "corrupto";
   let tokenGuardado = token;
   let headerGuardado = null;
   let payloadGuardado = null;
@@ -225,7 +259,6 @@ export const verificarJWT = async (req, res) => {
   let mensajeGuardado = null;
   let iatGuardado = null;
   let expGuardado = null;
-  let esNuestroTokenGuardado = false;
 
   // VALIDAR ESTRUCTURA DEL TOKEN (debe tener exactamente 3 partes)
   const partes = token.split(".");
@@ -258,8 +291,8 @@ export const verificarJWT = async (req, res) => {
   }
 
   const decoded2 = base64UrlDecode(parte2);
-
   console.log("Decoded Parte 2:", decoded2);
+  
   // Verificar la parte 2 del token
   if (!decoded2.success) {
     erroresPartes.push(`Error en la parte 2 del Token: ${decoded2.error}`);
@@ -267,18 +300,19 @@ export const verificarJWT = async (req, res) => {
 
   const decoded3 = base64UrlDecode(parte3); 
   console.log("Decoded Parte 3:", decoded3);
+  
   // Verificar la parte 3 del token
   if (!decoded3.success) {
     erroresPartes.push(`Error en la parte 3 del Token: ${decoded3.error}`);
   }
 
   if (erroresPartes.length > 0) {
-    estado = "Corrupto";
+    estado = "corrupto";
     headerGuardado = decoded1;
     payloadGuardado = decoded2;
     signatureGuardado = parte3;
     errorGuardado = erroresPartes.join(". ");
-    mensajeGuardado = "Token Corrupto - errores en la decodificación de las partes";
+    mensajeGuardado = "Token corrupto - errores en la decodificación de las partes";
 
     return await guardarYResponder(estado, {
       token: tokenGuardado,
@@ -302,20 +336,17 @@ export const verificarJWT = async (req, res) => {
   const erroresOrden = [];
   
   // Validación de parte 1 -> debe ser el header
-
   if (tipo1 === 'payload') {
     erroresOrden.push("El Payload no debe ir en la posición del Header");
   }
   if (tipo1 === 'mixto') {
     erroresOrden.push("La primera parte contiene Claims de Header y Payload");
   }
-
   if (tipo1 === 'signature') {
-  erroresOrden.push("La firma no puede estar en la parte del Header");
+    erroresOrden.push("No se logro decodificar la parte 1");
   }
   
   // Validación de parte 2 -> debe ser el payload
-
   if (tipo2 === 'header') {
     erroresOrden.push("El Header no debe ir en la posición del Payload");
   }
@@ -323,12 +354,11 @@ export const verificarJWT = async (req, res) => {
     erroresOrden.push("La segunda parte contiene Claims de Header y Payload");
   }
   if (tipo2 === 'signature') {
-  erroresOrden.push("El signature no debe ir en la posición del Payload");
+    erroresOrden.push("No se logro decodificar la parte 2");
   }
 
   // Validación de parte 3 -> debe ser el signature
-
-  if (decoded3 !== null) {
+  if (decoded3.success && decoded3.type !== 'signature') {
     if (tipo3 === 'header') {
       erroresOrden.push("El Header no debe ir en la posición del Signature");
     } 
@@ -336,15 +366,15 @@ export const verificarJWT = async (req, res) => {
       erroresOrden.push("El Payload no debe ir en la posición del Signature");
     } 
     if (tipo3 === 'mixto') {
-      erroresOrden.push("El signature contiene estructura JSON cuando debe ser solo una cadena codificada");
+      erroresOrden.push("La tercera parte debe ser la firma, no contener estructura JSON");
     }
   }
 
   if (erroresOrden.length > 0) {
     estado = "invalido";
-    headerGuardado = decoded1;
-    payloadGuardado = decoded2;
-    signatureGuardado = parte3;
+    headerGuardado = decoded1.data;
+    payloadGuardado = decoded2.data;
+    signatureGuardado = decoded3.data;
     errorGuardado = erroresOrden.join(". ");
     mensajeGuardado = "Token mal formado";
 
@@ -441,7 +471,7 @@ export const verificarJWT = async (req, res) => {
     const decodificadoCompleto = jwt.decode(token, { complete: true });
 
     if (!decodificadoCompleto || !decodificadoCompleto.payload) {
-      estado = "Corrupto";
+      estado = "corrupto";
       errorGuardado = "Token corrupto - no se pudo decodificar el contenido";
 
       return await guardarYResponder(estado, {
@@ -495,16 +525,28 @@ export const verificarJWT = async (req, res) => {
       }, res);
     }
 
-    // Verificar si es nuestro token
-    try {
-      jwt.verify(token, MI_CLAVE_SECRETA);
-      esNuestroTokenGuardado = true;
-      claveSecretaGuardada = MI_CLAVE_SECRETA;
-    } catch (verifyError) {
-      esNuestroTokenGuardado = false;
+    // VALIDAR IAT (issued at) - no debe ser en el futuro
+    if (iat && typeof iat === 'number') {
+      if (iat > ahora) {
+        estado = "invalido";
+        mensajeGuardado = "Token no válido aún";
+        iatGuardado = new Date(iat * 1000).toISOString();
+        expGuardado = exp ? new Date(exp * 1000).toISOString() : null;
+
+        return await guardarYResponder(estado, {
+          token: tokenGuardado,
+          header: headerGuardado,
+          payload: payloadGuardado,
+          signature: signatureGuardado,
+          claveSecreta: claveSecretaGuardada,
+          iat: iatGuardado,
+          exp: expGuardado,
+          mensaje: mensajeGuardado
+        }, res);
+      }
     }
 
-    // Verificar si el token está vencido
+    // Verificar si el token está vencido (EXP)
     const tokenVencido = exp && exp < ahora;
 
     iatGuardado = iat ? new Date(iat * 1000).toISOString() : null;
@@ -513,25 +555,77 @@ export const verificarJWT = async (req, res) => {
     if (tokenVencido) {
       estado = "invalido";
       mensajeGuardado = "Token expirado";
-    } else {
-      estado = "valido";
-      mensajeGuardado = "Token válido y no expirado";
+
+      return await guardarYResponder(estado, {
+        token: tokenGuardado,
+        header: headerGuardado,
+        payload: payloadGuardado,
+        signature: signatureGuardado,
+        claveSecreta: claveSecretaGuardada,
+        iat: iatGuardado,
+        exp: expGuardado,
+        mensaje: mensajeGuardado
+      }, res);
     }
 
-    return await guardarYResponder(estado, {
-      token: tokenGuardado,
-      header: headerGuardado,
-      payload: payloadGuardado,
-      signature: signatureGuardado,
-      claveSecreta: claveSecretaGuardada,
-      iat: iatGuardado,
-      exp: expGuardado,
-      mensaje: mensajeGuardado,
-      esNuestroToken: esNuestroTokenGuardado
-    }, res);
+    // MANEJO DE LA KEY (CLAVE SECRETA)
+    if (key === "" || key.trim() === "") {
+      // 1. Si la clave está vacía -> ciclo normal (no verificar firma)
+      estado = "valido";
+      mensajeGuardado = "Token válido y no expirado (sin verificación de firma)";
+      claveSecretaGuardada = null;
+
+      return await guardarYResponder(estado, {
+        token: tokenGuardado,
+        header: headerGuardado,
+        payload: payloadGuardado,
+        signature: signatureGuardado,
+        claveSecreta: claveSecretaGuardada,
+        iat: iatGuardado,
+        exp: expGuardado,
+        mensaje: mensajeGuardado
+      }, res);
+    } else {
+      // 2. Si la clave NO está vacía -> verificar la firma con jwt.verify
+      try {
+        jwt.verify(token, key);
+        // 2.1 Verificación exitosa
+        estado = "valido";
+        mensajeGuardado = "Token válido y no expirado";
+        claveSecretaGuardada = key;
+
+        return await guardarYResponder(estado, {
+          token: tokenGuardado,
+          header: headerGuardado,
+          payload: payloadGuardado,
+          signature: signatureGuardado,
+          claveSecreta: claveSecretaGuardada,
+          iat: iatGuardado,
+          exp: expGuardado,
+          mensaje: mensajeGuardado
+        }, res);
+      } catch (verifyError) {
+        // 2.2 Verificación fallida - clave incorrecta
+        estado = "invalido";
+        errorGuardado = "Clave incorrecta";
+        mensajeGuardado = "Clave incorrecta";
+
+        return await guardarYResponder(estado, {
+          token: tokenGuardado,
+          header: headerGuardado,
+          payload: payloadGuardado,
+          signature: signatureGuardado,
+          claveSecreta: null,
+          iat: iatGuardado,
+          exp: expGuardado,
+          error: errorGuardado,
+          mensaje: mensajeGuardado
+        }, res);
+      }
+    }
 
   } catch (error) {
-    estado = "Corrupto";
+    estado = "corrupto";
     errorGuardado = "Token corrupto - " + error.message;
 
     return await guardarYResponder(estado, {
