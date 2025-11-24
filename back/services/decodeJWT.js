@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { SECRET_KEY } from "../config/secret.js"; // No lo usas aquí, pero ok si está
+import { SECRET_KEY } from "../config/secret.js";
 
 /**
  * Decodifica un JWT sin verificar su validez (solo lectura del payload).
